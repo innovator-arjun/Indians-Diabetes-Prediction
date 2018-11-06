@@ -112,7 +112,7 @@ y_up = df_upsampled.Outcome
 
 
 # Further divide the train data into train test 
-X_train_up, X_test_up, y_train_up, y_test_up = train_test_split(x_up, y_up, test_size=0.25, random_state=2)
+X_train_up, X_test_up, y_train_up, y_test_up = train_test_split(x_up, y_up, test_size=0.40, random_state=2)
 
 
 #Feature Scaling 
@@ -163,25 +163,27 @@ models_report
 
 
 from sklearn.ensemble import RandomForestClassifier
-classifier=RandomForestClassifier(n_estimators=100)
+classifier=RandomForestClassifier(n_estimators=300, n_jobs=1,random_state=0)
 classifier.fit(X_train_up,y_train_up)
 
 y_pred=classifier.predict(X_test_up)
 
-from sklearn.metrics import confusion_matrix
 
 cm=confusion_matrix(y_pred,y_test_up)
 
 
 
 #Applying the k-Fold Cross Validation
-from sklearn.model_selection import cross_val_score
 #10 accuracy will be returned that will be computed through 10 computation using k-fold
 accuracies=cross_val_score(estimator=classifier,X=X_train_up,y=y_train_up,cv=10)
 
 #Take the average or mean on accuracies
 mean_accuracies=accuracies.mean()
 std_accuracies=accuracies.std()*100
+
+
+
+
 
 
 from matplotlib.colors import ListedColormap
@@ -220,7 +222,7 @@ plt.show()
 
 
 
-210/250
+335/400
 
 
 
