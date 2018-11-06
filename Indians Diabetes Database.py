@@ -12,6 +12,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.utils import resample
 
+from pylab import pcolor, show, colorbar, xticks, yticks
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+import sklearn.svm as svm
+from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import cross_val_score
+import numpy as np
+from sklearn.metrics import roc_curve, auc, confusion_matrix, classification_report,accuracy_score
+from sklearn import preprocessing,svm,neighbors
+import pandas as pd
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.svm import LinearSVC
+from sklearn.model_selection import KFold
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn import preprocessing, metrics
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from subprocess import check_output
+
+
+
 dataset=pd.read_csv('diabetes.csv')
 
 dataset.Pregnancies.unique()
@@ -58,7 +82,6 @@ dataset['Pregnancies']=label.fit_transform(dataset['Pregnancies'])
 
 
 #Splitting independent and dependent variable
-from sklearn.model_selection import train_test_split
 X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.25,random_state=0)
 
 X_train
@@ -105,6 +128,39 @@ X_test_up=pca.transform(X_test_up)
 explained_variance=pca.explained_variance_ratio_
 
 
+clfs = {
+'LogisticRegression' : LogisticRegression(),
+'GaussianNB': GaussianNB(),
+'RandomForest': RandomForestClassifier(),
+'DecisionTreeClassifier': DecisionTreeClassifier(),
+'SVM': SVC(),
+'KNeighborsClassifier': KNeighborsClassifier(),
+'GradientBoosting': GradientBoostingClassifier(),
+}
+
+
+models_report = pd.DataFrame(columns = ['Model', 'Precision_score', 'Recall_score','F1_score', 'Accuracy'])
+
+for clf, clf_name in zip(clfs.values(), clfs.keys()):
+    clf.fit(X_train_up,y_train_up)
+    y_pred = clf.predict(X_test_up)
+    y_score = clf.score(X_test_up,y_test_up)
+    
+    #print('Calculating {}'.format(clf_name))
+    t = pd.Series({ 
+                     'Model': clf_name,
+                     'Precision_score': metrics.precision_score(y_test_up, y_pred),
+                     'Recall_score': metrics.recall_score(y_test_up, y_pred),
+                     'F1_score': metrics.f1_score(y_test_up, y_pred),
+                     'Accuracy': metrics.accuracy_score(y_test_up, y_pred)}
+                   )
+
+    models_report = models_report.append(t, ignore_index = True)
+
+models_report
+
+
+
 
 from sklearn.ensemble import RandomForestClassifier
 classifier=RandomForestClassifier(n_estimators=100)
@@ -144,6 +200,25 @@ plt.xlabel('PC1')
 plt.ylabel('PC2')
 plt.legend()
 plt.show()
+
+from matplotlib.colors import ListedColormap
+X_set, y_set = X_test_up, y_test_up
+X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01),
+                     np.arange(start = X_set[:, 1].min() - 1, stop = X_set[:, 1].max() + 1, step = 0.01))
+plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
+             alpha = 0.75, cmap = ListedColormap(('red', 'blue')))
+plt.xlim(X1.min(), X1.max())
+plt.ylim(X2.min(), X2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1],
+                c = ListedColormap(('red', 'blue'))(i), label = j)
+plt.title('Logistic Regression (Training set)')
+plt.xlabel('PC1')
+plt.ylabel('PC2')
+plt.legend()
+plt.show()
+
+
 
 210/250
 
