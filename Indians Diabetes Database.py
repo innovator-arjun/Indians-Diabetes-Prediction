@@ -12,12 +12,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.utils import resample
 
-from pylab import pcolor, show, colorbar, xticks, yticks
-from sklearn.feature_selection import RFE
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 import sklearn.svm as svm
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 import numpy as np
 from sklearn.metrics import roc_curve, auc, confusion_matrix, classification_report,accuracy_score
@@ -79,13 +77,6 @@ dataset['Pregnancies']=label.fit_transform(dataset['Pregnancies'])
 
 
 
-
-
-#Splitting independent and dependent variable
-X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.25,random_state=0)
-
-X_train
-
 df_majority = dataset[dataset.Outcome==0]
 df_minority = dataset[dataset.Outcome==1]
 
@@ -126,6 +117,7 @@ pca=PCA(n_components=None,random_state=0)
 X_train_up=pca.fit_transform(X_train_up)
 X_test_up=pca.transform(X_test_up)
 explained_variance=pca.explained_variance_ratio_
+
 
 
 clfs = {
@@ -171,8 +163,7 @@ y_pred=classifier.predict(X_test_up)
 
 cm=confusion_matrix(y_pred,y_test_up)
 
-
-
+from sklearn.model_selection import cross_val_score
 #Applying the k-Fold Cross Validation
 #10 accuracy will be returned that will be computed through 10 computation using k-fold
 accuracies=cross_val_score(estimator=classifier,X=X_train_up,y=y_train_up,cv=10)
@@ -180,6 +171,8 @@ accuracies=cross_val_score(estimator=classifier,X=X_train_up,y=y_train_up,cv=10)
 #Take the average or mean on accuracies
 mean_accuracies=accuracies.mean()
 std_accuracies=accuracies.std()*100
+
+
 
 
 
